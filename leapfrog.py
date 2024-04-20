@@ -5,17 +5,17 @@ import matplotlib.pyplot as plt
 # Constants
 G = 6.67430e-11  # gravitational constant, m^3 kg^-1 s^-2
 r = 6.371e6 # Earth's radius
-As = 1000e3 # altitude of satellite from Earth
+As = 5*r #1000e3 # altitude of satellite from Earth
 
 dt = 100     # time step in seconds 
 
-simulation_days = 1 # Simulation duration in days 
-secs_in_sim = simulation_days * 24 * 60 * 60  # Number of seconds in simulation duration
-num_steps = secs_in_sim // dt   # Steps in simulation duration given dt size
+simulation_hours = 5 # Simulation duration in hours
+secs_in_sim = simulation_hours * 60 * 60  # Number of seconds in simulation duration
+num_steps =int( secs_in_sim // dt)   # Steps in simulation duration given dt size
 
 # Masses
 M1 = 5.972e24    # Mass of Earth
-M2 = 2500        # Weight of satellite 
+M2 = M1 #2500    # Weight of satellite 
 
 # Initial conditions
 # First body - Earth
@@ -31,13 +31,22 @@ y2 = 0
 vx2 = 0 
 vy2 = np.sqrt(G * M1 / initial_distance)  # orbital velocity in m/s
 
-def plot_trajectories(positions1, position2): 
+def get_initial_velocity( M1, M2):
+	v = np.sqrt(G * M1 * M2/((M1 + M2) * initial_distance))
+	vE = (v * M2) / (M1 + M2)
+	vs = (v * M1) / (M1 + M2)
+	print (v, vE, vs)
+	return vE, -vs
+
+def plot_trajectories(positions1, positions2): 
     plt.figure(figsize=(10, 5))
     # Plot for Earth with a large, distinctive marker
     plt.scatter(positions1['x'][-1], positions1['y'][-1], color='blue', marker='.')
-    plt.plot(positions1['x'], positions1['y'], label='Earth', color='blue')
+    plt.plot(positions1['x'], positions1['y'], label='mass M1', color='blue')
     # Plot for Satellite
-    plt.plot(positions2['x'], positions2['y'], label='Satellite', color='orange')
+	
+    plt.scatter(positions2['x'][-1], positions2['y'][-1], color='orange', marker='.')
+    plt.plot(positions2['x'], positions2['y'], label='mass M2', color='orange')
     plt.xlabel('X Position')
     plt.ylabel('Y Position')
     plt.title('Two-Body Simulation')
@@ -45,10 +54,10 @@ def plot_trajectories(positions1, position2):
     plt.legend()
     plt.show()
 
-def plot_position_against_time(positions, body_name):
+def plot_position_against_time(positions, body_name, color1, color2):
     plt.figure(figsize=(10, 5))
-    plt.plot(positions['x'], label='X Position', color='red')
-    plt.plot(positions['y'], label='Y Position', color='green', linestyle='--')
+    plt.plot(positions['x'], label='X Position', color=color1)
+    plt.plot(positions['y'], label='Y Position', color=color2, linestyle='--')
     plt.title(f'Position vs. Time for {body_name}')
     plt.xlabel('Time (in dt steps)')
     plt.ylabel('Position')
@@ -161,8 +170,9 @@ def sim_leapfrog(x1, y1, x2, y2, vx1, vy1, vx2, vy2):
 
 #positions1, positions2 = sim_euler(x1, y1, x2, y2, vx1, vy1, vx2, vy2)
 #plot_trajectories(positions1, positions2)
-
+vy1, vy2 = get_initial_velocity( M1, M2)
+print (vy1, vy2)
 positions1, positions2 = sim_leapfrog(x1, y1, x2, y2, vx1, vy1, vx2, vy2)
 plot_trajectories(positions1, positions2)
-plot_position_against_time(positions1, 'Earth')
-plot_position_against_time(positions2, 'Satellite')
+plot_position_against_time(positions1, 'mass M1', 'red', 'green')
+plot_position_against_time(positions2, 'mass M2', 'blue', 'purple')
