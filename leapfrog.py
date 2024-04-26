@@ -5,17 +5,17 @@ import matplotlib.pyplot as plt
 # Constants
 G = 6.67430e-11  # gravitational constant, m^3 kg^-1 s^-2
 r = 6.371e6 # Earth's radius
-As = 5*r #1000e3 # altitude of satellite from Earth
+As = 1000e3 # altitude of satellite from Earth
 
-dt = 100     # time step in seconds 
+dt = 200     # time step in seconds 
 
-simulation_hours = 5 # Simulation duration in hours
+simulation_hours = 10 # Simulation duration in hours
 secs_in_sim = simulation_hours * 60 * 60  # Number of seconds in simulation duration
 num_steps =int( secs_in_sim // dt)   # Steps in simulation duration given dt size
 
 # Masses
 M1 = 5.972e24    # Mass of Earth
-M2 = M1 #2500    # Weight of satellite 
+M2 = 2500    # Weight of satellite 
 
 # Initial conditions
 # First body - Earth
@@ -32,13 +32,11 @@ vx2 = 0
 vy2 = np.sqrt(G * M1 / initial_distance)  # orbital velocity in m/s
 
 def get_initial_velocity( M1, M2):
-	v = np.sqrt(G * M1 * M2/((M1 + M2) * initial_distance))
-	vE = (v * M2) / (M1 + M2)
-	vs = (v * M1) / (M1 + M2)
-	print (v, vE, vs)
-	return vE, -vs
+	v1 = M2* np.sqrt(G /((M1 + M2) * initial_distance))
+	v2 =-M1*v1/M2 
+	return v1, v2
 
-def plot_trajectories(positions1, positions2): 
+def plot_trajectories(positions1, positions2, name): 
     plt.figure(figsize=(10, 5))
     # Plot for Earth with a large, distinctive marker
     plt.scatter(positions1['x'][-1], positions1['y'][-1], color='blue', marker='.')
@@ -49,7 +47,8 @@ def plot_trajectories(positions1, positions2):
     plt.plot(positions2['x'], positions2['y'], label='mass M2', color='orange')
     plt.xlabel('X Position')
     plt.ylabel('Y Position')
-    plt.title('Two-Body Simulation')
+    title = "Two-Body Simulation using " + name + " method"
+    plt.title(title)
     plt.axis('equal')
     plt.legend()
     plt.show()
@@ -168,11 +167,10 @@ def sim_leapfrog(x1, y1, x2, y2, vx1, vy1, vx2, vy2):
         positions2['y'].append(y2)
     return positions1, positions2
 
-#positions1, positions2 = sim_euler(x1, y1, x2, y2, vx1, vy1, vx2, vy2)
-#plot_trajectories(positions1, positions2)
 vy1, vy2 = get_initial_velocity( M1, M2)
-print (vy1, vy2)
+positions1, positions2 = sim_euler(x1, y1, x2, y2, vx1, vy1, vx2, vy2)
+plot_trajectories(positions1, positions2, "Euler")
 positions1, positions2 = sim_leapfrog(x1, y1, x2, y2, vx1, vy1, vx2, vy2)
-plot_trajectories(positions1, positions2)
+plot_trajectories(positions1, positions2, "Leapfrog")
 plot_position_against_time(positions1, 'mass M1', 'red', 'green')
 plot_position_against_time(positions2, 'mass M2', 'blue', 'purple')
