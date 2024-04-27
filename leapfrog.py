@@ -22,14 +22,12 @@ M2 = 2500    # Weight of satellite
 x1 = 0
 y1 = 0
 vx1 = 0 
-vy1 = 0 
 
 # Second body - Satellite
 initial_distance = r + As  # Earth's radius + altitude of satellite in meters
 x2 = initial_distance
 y2 = 0
 vx2 = 0 
-vy2 = np.sqrt(G * M1 / initial_distance)  # orbital velocity in m/s
 
 def get_initial_velocity( M1, M2):
 	v1 = M2* np.sqrt(G /((M1 + M2) * initial_distance))
@@ -63,7 +61,7 @@ def plot_position_against_time(positions, body_name, color1, color2):
     plt.legend()
     plt.show()
 
-def sim_euler(x1, y1, x2, y2, vx1, vy1, vx2, vy2):
+def sim_euler(x1, y1, x2, y2, vx1, vy1, vx2, vy2, M1, M2, dt):
     # Lists to store positions
     positions1 = {'x': [], 'y': []}
     positions2 = {'x': [], 'y': []}
@@ -106,7 +104,7 @@ def sim_euler(x1, y1, x2, y2, vx1, vy1, vx2, vy2):
         positions2['y'].append(y2)
     return positions1, positions2
 
-def sim_leapfrog(x1, y1, x2, y2, vx1, vy1, vx2, vy2):
+def sim_leapfrog(x1, y1, x2, y2, vx1, vy1, vx2, vy2, M1, M2, dt):
     # Lists to store positions
     positions1 = {'x': [], 'y': []}
     positions2 = {'x': [], 'y': []}
@@ -168,9 +166,9 @@ def sim_leapfrog(x1, y1, x2, y2, vx1, vy1, vx2, vy2):
     return positions1, positions2
 
 vy1, vy2 = get_initial_velocity( M1, M2)
-positions1, positions2 = sim_euler(x1, y1, x2, y2, vx1, vy1, vx2, vy2)
+positions1, positions2 = sim_euler(x1, y1, x2, y2, vx1, vy1, vx2, vy2, M1, M2, dt)
 plot_trajectories(positions1, positions2, "Euler")
-positions1, positions2 = sim_leapfrog(x1, y1, x2, y2, vx1, vy1, vx2, vy2)
+positions1, positions2 = sim_leapfrog(x1, y1, x2, y2, vx1, vy1, vx2, vy2, M1, M2, dt)
 plot_trajectories(positions1, positions2, "Leapfrog")
 plot_position_against_time(positions1, 'mass M1', 'red', 'green')
 plot_position_against_time(positions2, 'mass M2', 'blue', 'purple')
